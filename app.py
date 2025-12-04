@@ -6,6 +6,40 @@ from datetime import datetime, timedelta, timezone
 import streamlit.components.v1 as components
 import time
 
+# --- BLOQUEIO DE CELULAR (CSS) ---
+st.markdown("""
+    <style>
+    /* Se a tela for menor que 768px (tamanho comum de tablets/celulares) */
+    @media (max-width: 768px) {
+        
+        /* Esconde todo o conteúdo do app */
+        .stApp {
+            display: none;
+        }
+        
+        /* Mostra uma mensagem de aviso */
+        body::before {
+            content: '🚫 Acesso bloqueado via Celular. Por favor, acesse este sistema pelo Computador.';
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            background-color: #0e1117; /* Cor de fundo escura */
+            color: #ff4b4b; /* Cor do texto (vermelho do Streamlit) */
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 9999;
+            padding: 20px;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 # --- Configurações ---
 NOME_PLANILHA = "Controle de Ponto"
 FUSO_BRASIL = timezone(timedelta(hours=-3))
