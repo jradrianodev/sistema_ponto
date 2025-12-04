@@ -3,6 +3,7 @@ import pandas as pd
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime, timedelta, timezone
+import streamlit.components.v1 as components
 
 # --- Configurações ---
 NOME_PLANILHA = "Controle de Ponto"
@@ -16,34 +17,65 @@ st.set_page_config(page_title="Ponto G-Sheets", page_icon="⏰")
 # --- HTML/JS para o Relógio Ticando ---
 def exibir_relogio_real():
     relogio_html = """
-    <div style="
-        background-color: #f0f2f6;
-        padding: 10px;
-        border-radius: 10px;
-        text-align: center;
-        margin-bottom: 20px;
-        border: 1px solid #dcdcdc;">
-        <p style="font-size: 16px; margin: 0; color: #333;">Horário Atual (Brasília)</p>
-        <div style="font-size: 35px; font-weight: bold; color: #0068c9; font-family: monospace;">
-            🕒 <span id="clock">Carregando...</span>
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100px;
+            margin: 0;
+            background-color: transparent;
+        }
+        .container {
+            background-color: #f0f2f6;
+            padding: 15px 30px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #dcdcdc;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.05);
+        }
+        .label {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 5px;
+        }
+        .clock {
+            font-size: 32px;
+            font-weight: bold;
+            color: #0068c9;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="label">Horário Atual (Brasília)</div>
+            <div class="clock" id="clock">Carregando...</div>
         </div>
-    </div>
 
-    <script>
-    function updateClock() {
-        var now = new Date();
-        // Força o horário para pt-BR
-        var timeString = now.toLocaleTimeString('pt-BR', { hour12: false });
-        var dateString = now.toLocaleDateString('pt-BR');
-        
-        document.getElementById('clock').innerHTML = timeString;
-    }
-    // Atualiza a cada 1 segundo (1000ms)
-    setInterval(updateClock, 1000);
-    updateClock();
-    </script>
+        <script>
+            function updateClock() {
+                // Cria data baseada no UTC e converte para horário de Brasília (UTC-3)
+                var now = new Date();
+                var utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+                var brasiliaTime = new Date(utc + (3600000 * -3));
+                
+                var timeString = brasiliaTime.toLocaleTimeString('pt-BR', { hour12: false });
+                
+                document.getElementById('clock').innerHTML = timeString;
+            }
+            setInterval(updateClock, 1000);
+            updateClock();
+        </script>
+    </body>
+    </html>
     """
-    st.markdown(relogio_html, unsafe_allow_html=True)
+    # Altura ajustada para caber o design sem barra de rolagem
+    components.html(relogio_html, height=130)
 
 # --- Conexão com Google Sheets ---
 def conectar_gsheets():
